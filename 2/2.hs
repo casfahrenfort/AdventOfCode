@@ -24,4 +24,4 @@ readCommand s@('d':xs) = Down (readNr s)
 readCommand s@('u':xs) = Up (readNr s)
 
 readNr :: String -> Int
-readNr s = digitToInt (((splitOn " " s) !! 1) !! 0)
+readNr s = read $ splitOn " " s !! 1 :: Int
