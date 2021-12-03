@@ -9,42 +9,33 @@ import Numeric    (readInt)
 
 main = do  
         contents <- readFile "3.txt"
-        print (lines contents)
+        print $ part1 (lines contents)
         print $ part2 (lines contents)
 
 part1 :: [String] -> Int
 part1 s = (gamma s) * (epsilon s)
 
 gamma :: [String] -> Int
-gamma s = bin2dec $ map mostCommon (transpose s)
+gamma s = bin2dec $ map (commonBit maximumBy) (transpose s)
 
 epsilon :: [String] -> Int
-epsilon s = bin2dec $ map leastCommon (transpose s)
+epsilon s = bin2dec $ map (commonBit minimumBy) (transpose s)
 
-f :: Eq a => a -> Int -> [[a]] -> [[a]]
-f d n y = filter ((== d) . (!! n)) y
+filterNthDigit :: Eq a => a -> Int -> [[a]] -> [[a]]
+filterNthDigit digit n list = filter ((== digit) . (!! n)) list
 
-g :: ([Char] -> Char) -> [Char] -> Int -> [[Char]] -> [Char]
-g c ys n s | length s == 1 = head s
-           | otherwise = g c (map c (transpose q)) (n+1) q
-    where q = f (ys !! n) n s
+filterReports :: ([Char] -> Char) -> Int -> [[Char]] -> [Char]
+filterReports f n [y] = y
+filterReports f n s   = filterReports f (n+1) $ filterNthDigit (common !! n) n s
+    where common = map f (transpose s)
 
 part2 :: [String] -> Int
-part2 s = (bin2dec $ g mostCommon (map mostCommon (transpose s)) 0 s) * (bin2dec $ g leastCommon (map leastCommon (transpose s)) 0 s)
+part2 input = (bin2dec oxygenBits ) * (bin2dec co2Bits)
+    where oxygenBits = filterReports (commonBit maximumBy) 0 input
+          co2Bits = filterReports (commonBit minimumBy) 0 input
 
-mostCommon :: [Char] -> Char
--- Check if number of 1s and 0s is the same
-mostCommon s | and $ map (==head p) (tail p) = '1'
-             | otherwise = head (maximumBy (compare `on` length) (group (sort s)))
-    where p = map length $ q
-          q = (group . sort) s
-
-
-leastCommon :: [Char] -> Char
-leastCommon s | and $ map (==head p) (tail p) = '0'
-              | otherwise = head (minimumBy (compare `on` length) (group (sort s)))
-    where p = map length $ q
-          q = (group . sort) s
+commonBit :: Foldable t => ((t a1 -> t a1 -> Ordering) -> [[Char]] -> [a2]) -> [Char] -> a2
+commonBit f s = head (f (compare `on` length) (group (sort s)))
 
 bin2dec :: String -> Int
 bin2dec = foldr (\c s -> s * 2 + c) 0 . reverse . map c2i
