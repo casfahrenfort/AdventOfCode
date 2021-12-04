@@ -7,7 +7,7 @@ namespace AoC2021
     public class Day4 : Day
     {
         public Day4()
-            : base(4, false)
+            : base(4, true)
         { }
 
         public override void Solve()
