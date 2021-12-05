@@ -6,7 +6,7 @@ namespace AoC2021
     {
         static void Main(string[] args)
         {
-            new Day4().Solve();
+            new Day5().Solve();
             Console.ReadKey();
         }
     }
