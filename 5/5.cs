@@ -8,7 +8,7 @@ namespace AoC2021
     public class Day5 : Day
     {
         public Day5()
-            : base(5, false)
+            : base(5, true)
         { }
 
         public override void Solve()
@@ -22,22 +22,24 @@ namespace AoC2021
                 lines.Add(new Line(int.Parse(split[0]), int.Parse(split2[0]), int.Parse(split2[1]), int.Parse(split[2])));
             }
 
-            int[,] coveredCoordinates = new int[1000, 1000];
+            int[,] coveredCoordinates = new int[10, 10];
             int overlapping = 0;
 
             foreach(Line line in lines)
             {
                 foreach (Vector2 p in line.CoveredPoints())
                 {
-                    coveredCoordinates[(int)p.X, (int)p.Y] += 1;
-                    if (coveredCoordinates[(int)p.X, (int)p.Y] == 2)
+                    if (!line.IsHorizontalOrVertical())
+                        continue;
+
+                    if (++coveredCoordinates[(int)p.X, (int)p.Y] == 2)
                     {
                         overlapping++;
                     }
                 }
-                //PrintCoordinates(coveredCoordinates);
             }
 
+            PrintCoordinates(coveredCoordinates);
             Console.WriteLine(overlapping);
         }
 
@@ -47,7 +49,7 @@ namespace AoC2021
             {
                 for(int j = 0; j < coordinates.GetLength(1); j++)
                 {
-                    Console.Write(coordinates[i, j] == 0 ? "." : coordinates[i, j].ToString());
+                    Console.Write(coordinates[j, i] == 0 ? "." : coordinates[j, i].ToString());
                 }
                 Console.WriteLine();
             }
