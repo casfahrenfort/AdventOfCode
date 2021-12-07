@@ -16,7 +16,7 @@ namespace AoC2021
 
         public override void Solve()
         {
-            List<int> crabs = input[0].Split(',').Select(x => int.Parse(x)).ToList();
+            List<int> crabs = input[0].Split(',').Select(int.Parse).ToList();
 
             foreach(int crab in crabs)
             {
@@ -68,10 +68,10 @@ namespace AoC2021
         {
             var sorted = numbers.OrderBy(n => n).ToArray();
 
-            if (sorted.Count() % 2 == 0)
-                return (sorted[(sorted.Count() / 2) - 1] + sorted[sorted.Count() / 2]) / 2;
+            if (sorted.Length % 2 == 0)
+                return (sorted[(sorted.Length / 2) - 1] + sorted[sorted.Length / 2]) / 2;
 
-            return sorted[sorted.Count() / 2];
+            return sorted[sorted.Length / 2];
         }
     }
 }
