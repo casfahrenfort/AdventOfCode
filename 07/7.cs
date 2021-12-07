@@ -6,6 +6,10 @@ namespace AoC2021
 {
     public class Day7 : Day
     {
+        private readonly Dictionary<int, int> positions = new Dictionary<int, int>();
+        private readonly Dictionary<int, int> costs = new Dictionary<int, int>();
+        private int lowestCost = int.MaxValue;
+
         public Day7()
             : base(7, false)
         { }
@@ -14,39 +18,60 @@ namespace AoC2021
         {
             List<int> crabs = input[0].Split(',').Select(x => int.Parse(x)).ToList();
 
-            Dictionary<int, int> positions = new Dictionary<int, int>();
-            int maxPosition = int.MinValue;
-            
             foreach(int crab in crabs)
             {
                 if (!positions.ContainsKey(crab))
                     positions.Add(crab, 1);
                 else
                     positions[crab]++;
-
-                if (crab > maxPosition)
-                    maxPosition = crab;
             }
 
-            int lowestCost = int.MaxValue;
-            for (int position = 0; position < maxPosition; position++)
+            int startPosition = Median(crabs);
+            LowestCost(startPosition);
+        }
+
+        private int LowestCost(int position)
+        {
+            int costBefore = Cost(position - 1);
+            int costAfter = Cost(position + 1);
+            int minCost = Math.Min(costBefore, costAfter);
+            lowestCost =  minCost < lowestCost ? minCost : lowestCost;
+
+            if (costBefore > lowestCost && costAfter > lowestCost)
+                return Cost(position);
+
+            return Math.Min(LowestCost(position - 1), LowestCost(position + 1));
+        }
+
+        private int Cost(int position)
+        {
+            if (costs.ContainsKey(position))
+                return costs[position];
+
+            int cost = 0;
+            foreach (int otherPosition in positions.Keys)
             {
-                int cost = 0;
-                foreach(int otherPosition in positions.Keys)
-                {
-                    if (otherPosition == position)
-                        continue;
-                    int distance = Math.Abs(position - otherPosition);
-                    int fuelCost = Enumerable.Range(1, distance).Sum();
-                    int occurrences = positions[otherPosition];
-                    cost += fuelCost * occurrences;
-                }
+                if (otherPosition == position)
+                    continue;
 
-                if (cost < lowestCost)
-                    lowestCost = cost;
+                int distance = Math.Abs(position - otherPosition);
+                int fuelCost = distance * (distance + 1) / 2;
+                int occurrences = positions[otherPosition];
+                cost += fuelCost * occurrences;
             }
 
-            Console.WriteLine(lowestCost);
+            costs.Add(position, cost);
+            return cost;
+        }
+
+        private int Median(IEnumerable<int> numbers)
+        {
+            var sorted = numbers.OrderBy(n => n).ToArray();
+
+            if (sorted.Count() % 2 == 0)
+                return (sorted[(sorted.Count() / 2) - 1] + sorted[sorted.Count() / 2]) / 2;
+
+            return sorted[sorted.Count() / 2];
         }
     }
 }
