@@ -12,7 +12,7 @@ namespace AoC2021
 
         protected Day(int dayNr, bool useExampleInput)
         {
-            string folder = dayNr > 10 ? dayNr.ToString() : $"0{dayNr}";
+            string folder = dayNr >= 10 ? dayNr.ToString() : $"0{dayNr}";
             string path = $"../../../{folder}/{(useExampleInput ? "ex" : dayNr.ToString())}.txt";
 
             input = File.ReadAllLines(path).ToList();
