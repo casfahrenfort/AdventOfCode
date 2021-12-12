@@ -111,7 +111,7 @@ namespace AoC2021
                 case ']': return 2;
                 case '}': return 3;
                 case '>': return 4;
-                default: return 0;
+                default: throw new Exception("Invalid token");
             }
         }
     }
