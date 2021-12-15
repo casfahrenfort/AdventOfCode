@@ -10,7 +10,6 @@ namespace AoC2021
         private int[,] octopi;
         HashSet<(int, int)> flash;
         private int flashCount;
-        private int allFlash;
 
         public Day11()
             : base(11, false)
