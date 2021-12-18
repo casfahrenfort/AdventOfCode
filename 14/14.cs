@@ -82,17 +82,6 @@ namespace AoC2021
             long answer = mostCommon - leastCommon;
         }
 
-        /* private string Polymer(string template, int depth)
-         {
-             if (depth == 10)
-                 return template;
-
-             depth++;
-
-             var chunks = WholeChunks(c => Polymer(c, depth), 2);
-             return string.Join("", polymers);
-         }*/
-
         private IEnumerable<string> WholeChunks(string str, int chunkSize)
         {
             for (int i = 0; i < str.Length - 1; i += 1)

@@ -19,6 +19,7 @@ namespace AoC2021
             vertices = new PriorityQueue<(int, int), int>(PriorityQueueType.Minimum);
             var distances = new Dictionary<(int, int), int>();
             var previous = new Dictionary<(int, int), (int, int)?>();
+            var inQ = new Dictionary<(int, int), bool>();
 
 
             for (int i = 0; i < 5; i++)
@@ -43,16 +44,19 @@ namespace AoC2021
 
                             distances.Add((xi, yj), int.MaxValue);
                             previous.Add((xi, yj), null);
+                            inQ.Add((xi, yj), false);
                         }
                 }
             }
 
             distances[(0, 0)] = 0;
             vertices.Enqueue((0, 0), int.MaxValue);
+            inQ[(0, 0)] = true;
 
             while (vertices.Count != 0)
             {
                 (int, int) u = vertices.Dequeue();
+                inQ[u] = false;
 
                 foreach (var v in Neighbours(u))
                 {
@@ -61,9 +65,10 @@ namespace AoC2021
                     {
                         distances[v] = alt;
                         previous[v] = u;
-                        if (!vertices.Contains(v))
+                        if (!inQ[v])
                         {
                             vertices.Enqueue(v, alt);
+                            inQ[v] = true;
                         }
                     }
                 }
