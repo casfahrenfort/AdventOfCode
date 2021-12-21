@@ -7,7 +7,7 @@ namespace AoC2021
     public class Day16 : Day
     {
         public Day16()
-            : base(16, true)
+            : base(16, false)
         { }
 
         public override void Solve()
@@ -47,51 +47,70 @@ namespace AoC2021
 
     public class PacketParser
     {
-        public BasePacket Parse(string binary)
+        public (List<BasePacket>, int) Parse(string binary, int nrOfPackets = -1)
         {
-            int version = Convert.ToInt32(binary.Substring(0, 3), 2);
-            int type = Convert.ToInt32(binary.Substring(3, 3), 2);
+            var packets = new List<BasePacket>();
+            int p = 0;
+            while (p < binary.Length - 6)
+            {
+                if (binary.Substring(p, binary.Length - p).All(x => x == '0'))
+                    break;
 
-            if (type == 4)
-            {
-                string literalPrefixedBinary = binary.Substring(6, binary.Length - 6);
-                return new LiteralPacket(version, type, LiteralValue(literalPrefixedBinary));
-            }
-            else
-            {
-                char lengthType = binary[6];
-                int length = lengthType == '0' ? 15 : 11;
-                if (length == 15)
+                int version = Convert.ToInt32(binary.Substring(p, 3), 2);
+                int type = Convert.ToInt32(binary.Substring(p + 3, 3), 2);
+
+                if (type == 4)
                 {
-                    int subPacketLength = Convert.ToInt32(binary.Substring(7, length), 2);
-                    string subPacketBinary = binary.Substring(7 + length, subPacketLength);
-                    return new OperatorPacket(1, 1, new List<BasePacket>());
+                    (long value, int index) = LiteralValue(binary.Substring(p + 6, binary.Length - (p + 6)));
+                    packets.Add(new LiteralPacket(version, type, value));
+                    p = p + 6 + (index + 1) * 5;
                 }
                 else
                 {
-                    int subPacketCount = Convert.ToInt32(binary.Substring(7, length), 2);
-                    string subPacketsBinary = binary.Substring(7 + length, +subPacketCount * 11);
+                    char lengthType = binary[p + 6];
+                    int length = lengthType == '0' ? 15 : 11;
                     List<BasePacket> subPackets = new List<BasePacket>();
-                    for (int i = 0; i < subPacketsBinary.Length; i += 11)
+                    if (length == 15)
                     {
-                        subPackets.Add(Parse(subPacketsBinary.Substring(i, 11)));
+                        int subPacketLength = Convert.ToInt32(binary.Substring(p + 7, length), 2);
+                        string subPacketBinary = binary.Substring(p + 7 + length, subPacketLength);
+                        subPackets.AddRange(Parse(subPacketBinary).Item1);
+                        p = p + 7 + length + subPacketBinary.Length;
                     }
-                    return new OperatorPacket(version, type, subPackets);
+                    else
+                    {
+                        int subPacketCount = Convert.ToInt32(binary.Substring(p + 7, length), 2);
+                        string subPacketBinary = binary.Substring(p + 7 + length, binary.Length - (p + 7 + length));
+                        (var subs, int subBinaryTermination) = Parse(subPacketBinary, subPacketCount);
+                        subPackets.AddRange(subs);
+                        p = p + 7 + length + subBinaryTermination;
+                    }
+                    packets.Add(new OperatorPacket(version, type, subPackets));
                 }
+                if (nrOfPackets != -1 && packets.Count == nrOfPackets)
+                    break;
             }
+
+
+            return (packets, p);
         }
 
-        private int LiteralValue(string binary)
+        private (long, int) LiteralValue(string binary)
         {
             var chunks = WholeChunks(binary, 5).ToList();
             string literalBinary = "";
+            int finalPacketIndex = -1;
             for (int i = 0; i < chunks.Count; i++)
             {
-                if (chunks[i].Length < 5)
-                    continue;
+                if (chunks[i][0] == '0')
+                {
+                    finalPacketIndex = i;
+                    literalBinary += chunks[i].Substring(1, 4);
+                    break;
+                }
                 literalBinary += chunks[i].Substring(1, 4);
             }
-            return Convert.ToInt32(literalBinary, 2);
+            return (Convert.ToInt64(literalBinary, 2), finalPacketIndex);
         }
 
         private IEnumerable<string> WholeChunks(string str, int chunkSize)
@@ -116,16 +135,30 @@ namespace AoC2021
             this.version = version;
             this.type = type;
         }
+
+        public abstract long Value { get; }
+
+        public abstract int Version { get; }
     }
 
     public class LiteralPacket : BasePacket
     {
-        public int value;
+        public long value;
 
-        public LiteralPacket(int version, int type, int value)
+        public LiteralPacket(int version, int type, long value)
             : base(version, type)
         {
             this.value = value;
+        }
+
+        public override long Value
+        {
+            get { return value; }
+        }
+
+        public override int Version
+        {
+            get { return version; }
         }
     }
 
@@ -137,7 +170,30 @@ namespace AoC2021
             : base(version, type)
         {
             this.subPackets = subPackets;
-            this.version = version + subPackets.Sum(x => x.version);
+            this.version = version;
+        }
+
+        public override long Value
+        {
+            get
+            {
+                switch (type)
+                {
+                    case 0: return subPackets.Sum(x => x.Value);
+                    case 1: return subPackets.Aggregate((long)1, (total, next) => total * next.Value);
+                    case 2: return subPackets.Min(x => x.Value);
+                    case 3: return subPackets.Max(x => x.Value);
+                    case 5: return subPackets[0].Value > subPackets[1].Value ? 1 : 0;
+                    case 6: return subPackets[0].Value < subPackets[1].Value ? 1 : 0;
+                    case 7: return subPackets[0].Value == subPackets[1].Value ? 1 : 0;
+                    default: throw new Exception("Invalid type");
+                }
+            }
+        }
+
+        public override int Version
+        {
+            get { return version + subPackets.Sum(x => x.version); }
         }
     }
 }
