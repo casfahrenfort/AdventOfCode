@@ -13,7 +13,7 @@ namespace AoC2021
             
             stopwatch.Start();
 
-            new Day16().Solve();
+            new Day25().Solve();
 
             stopwatch.Stop();
 
