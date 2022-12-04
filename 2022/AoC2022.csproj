@@ -11,7 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="04\" />
     <Folder Include="05\" />
     <Folder Include="06\" />
     <Folder Include="07\" />
