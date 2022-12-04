@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace AoC2022
 {
@@ -13,7 +11,7 @@ namespace AoC2022
             
             stopwatch.Start();
 
-            new Day2().Solve();
+            new Day4().Solve();
 
             stopwatch.Stop();
 
