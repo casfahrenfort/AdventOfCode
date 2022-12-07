@@ -15,7 +15,7 @@ namespace AoC2022
             string folder = dayNr >= 10 ? dayNr.ToString() : $"0{dayNr}";
             string path = $"../../../{folder}/{(useExampleInput ? "ex" : dayNr.ToString())}.txt";
 
-            input = File.ReadAllLines(path).ToList();
+            input = System.IO.File.ReadAllLines(path).ToList();
         }
 
         public virtual void Solve()

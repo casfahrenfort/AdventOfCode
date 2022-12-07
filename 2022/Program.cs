@@ -8,10 +8,11 @@ namespace AoC2022
         static void Main(string[] args)
         {
             var stopwatch = new Stopwatch();
-            
+            var day = new Day8();
+
             stopwatch.Start();
 
-            new Day6().Solve();
+            day.Solve();
 
             stopwatch.Stop();
 
