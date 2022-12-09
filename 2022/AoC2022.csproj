@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7</TargetFramework>
-	<LangVersion>11.0</LangVersion>
+    <TargetFramework>net6</TargetFramework>
+	<LangVersion>10.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <Folder Include="06\" />
-    <Folder Include="09\" />
     <Folder Include="10\" />
     <Folder Include="11\" />
     <Folder Include="12\" />
