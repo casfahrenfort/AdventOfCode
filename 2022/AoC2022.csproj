@@ -7,21 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NGenerics" Version="1.5.3" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="06\" />
-    <Folder Include="10\" />
-    <Folder Include="11\" />
-    <Folder Include="12\" />
-    <Folder Include="13\" />
-    <Folder Include="14\" />
-    <Folder Include="15\" />
-    <Folder Include="16\" />
-    <Folder Include="17\" />
-    <Folder Include="18\" />
   </ItemGroup>
 
 </Project>

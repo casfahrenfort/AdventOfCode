@@ -70,29 +70,6 @@ namespace AoC2022
 
         public void MoveTails()
         {
-            for(int i = 0; i < tails.Count; i++)
-            {
-                var tail = tails[i];
-                var head = i == 0 ? realHead : tails[i - 1];
-
-                if (Math.Abs(head.Item1 - tail.Item1) == 2
-                    || Math.Abs(head.Item2 - tail.Item2) == 2)
-                {
-                    int xMove = 0, yMove = 0;
-                    if (head.Item1 > tail.Item1)
-                        xMove = 1;
-                    else if (head.Item1 < tail.Item1)
-                        xMove = -1;
-
-                    if (head.Item2 < tail.Item2)
-                        yMove = -1;
-                    else if (head.Item2 > tail.Item2)
-                        yMove = 1;
-
-                    tails[i] = (tail.Item1 + xMove, tail.Item2 + yMove);
-
-                }
-            }
         }
     }
 }
