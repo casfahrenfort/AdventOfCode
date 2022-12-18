@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace AoC2022
@@ -12,36 +14,52 @@ namespace AoC2022
 
         public override void Solve()
         {
-            var answerP1 = input.Sublists(3)
-                .Select(lines => (JArray.Parse(lines.First()), JArray.Parse(lines.ElementAt(1))))
-                .Select((item, index) => new { order = InOrder(item), index = index + 1 })
-                .Where(x => x.order)
-                .Select(x => x.index)
-                .Sum();
+           var comparer = new PacketComparer();
+
+            var answerP1 = input
+                 .Sublists(3)
+                 .Select(lines => (JArray.Parse(lines.First()), JArray.Parse(lines.ElementAt(1))))
+                 .Select((item, index) => new { item, index = index + 1 })
+                 .Where(x => comparer.Compare(x.item.Item1, x.item.Item2) == -1)
+                 .Sum(x => x.index);
+
+            var answerP2 = input
+                .Where(x => x != "")
+                .Select(x => JArray.Parse(x))
+                .Append(JArray.Parse("[[2]]"))
+                .Append(JArray.Parse("[[6]]"))
+                .OrderBy(x => x, comparer)
+                .Select((item, index) => new { item, index = index + 1 })
+                .Where(x => IsDividerPacket(x.item))
+                .Aggregate(1, (x, y) => x * y.index);
         }
 
-        public bool InOrder((JArray, JArray) packetPair)
+        public bool IsDividerPacket(JArray packet)
         {
-            var left = packetPair.Item1;
-            var right = packetPair.Item2;
+            if (packet.Children().Count() != 1)
+                return false;
 
-            var result = Compare(left, right);
+            if (packet.Children().First().Children().Count() != 1)
+                return false;
 
-            if (result == null)
-                throw new NotImplementedException();
+            var dividerNumToken = packet.Children().First().Children().First();
 
-            return result!.Value;
+            return dividerNumToken.Type == JTokenType.Integer
+                && ((long)((JValue)dividerNumToken).Value == 2 || (long)((JValue)dividerNumToken).Value == 6);
         }
+    }
 
-        public bool? Compare(JToken value1, JToken value2)
+    public class PacketComparer : IComparer<JToken>
+    {
+        public int Compare(JToken value1, JToken value2)
         {
             if (value1.Type == JTokenType.Integer && value2.Type == JTokenType.Integer)
             {
-                if ((int)(JValue)value1 < (int)(JValue)value2) 
-                    return true;
-                if ((int)(JValue)value1 > (int)(JValue)value2) 
-                    return false;
-                return null;
+                if ((int)(JValue)value1 < (int)(JValue)value2)
+                    return -1;
+                if ((int)(JValue)value1 > (int)(JValue)value2)
+                    return 1;
+                return 0;
             }
 
             if (value1.Type == JTokenType.Array && value2.Type == JTokenType.Array)
@@ -57,7 +75,7 @@ namespace AoC2022
                     }
                     catch
                     {
-                        return true;
+                        return -1;
                     }
 
                     try
@@ -66,12 +84,12 @@ namespace AoC2022
                     }
                     catch
                     {
-                        return false;
+                        return 1;
                     }
 
                     var result = Compare(a1val, a2val);
 
-                    if (result == null)
+                    if (result == 0)
                         continue;
                     return result;
                 }
@@ -88,7 +106,7 @@ namespace AoC2022
                 return Compare(value1, value2);
             }
 
-            return null;
+            return 0;
         }
     }
 }
